@@ -1,0 +1,171 @@
+﻿@using MVCBase.Enums;
+@using MVCClient.Configuration
+@using MVCModel.Models;
+
+
+@{Layout = "~/Views/Shared/_LayoutPopupWindow.cshtml";}
+
+
+@using (Html.BeginForm())
+{
+
+    <div class="div-tabstrip">
+        @(Html.Kendo().TabStrip()
+        .Name("tabStrip")
+        .Items(tabstrip =>
+        {
+            tabstrip.Add().Text("Chọn hóa đơn mua hàng")
+                .Selected(true)
+                .Content(@<text>
+                    <div class=" tabstrip-workspace">
+
+                        <div class="div-find" style="margin-bottom:8px;">
+                            <input id="purchaseInvoiceReferenceSearchBox" class="k-textbox" onkeyup="purchaseInvoiceReferenceSearchBox_KeyUp()" />
+                            <input id="purchaseInvoiceReferenceSearchButton" type="button" class="k-button" value="Tìm" onclick="purchaseInvoiceReferenceSearchButton_Click()" />
+                        </div>
+
+                        <div>
+                            @(Html.Kendo().Grid<GoodsReceiptGetPurchaseInvoice>()
+                                        .Name("getPurchaseInvoicesGrid")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(c => c.EntryDate).DisplayNameTitle().Width(80).Format("{0:" + SettingsManager.DateFormat + "}");
+                                            columns.Bound(c => c.Reference).DisplayNameTitle().Width(80);
+
+                                            columns.Bound(c => c.CustomerName).DisplayNameTitle().Width(160);
+                                            columns.Bound(c => c.AttentionName).DisplayNameTitle().Width(120);
+                                            columns.Bound(c => c.Telephone).DisplayNameTitle().Width(80);
+
+                                            columns.Bound(c => c.Description).DisplayNameTitle().Width(120);
+                                            columns.Bound(c => c.Remarks).DisplayNameTitle().Width(120);
+                                        })
+                                        .Scrollable(s => s.Height(SettingsManager.GridPopupHeight))
+                                        .DataSource(ds => ds.Ajax()
+                                                .Read(read => read.Action("GetPurchaseInvoices", "GoodsReceiptsApi").Data("onAdditionalGetPurchaseInvoices"))
+                                                .ServerOperation(true)
+                                        )
+                                        .Selectable()
+                            )
+                        </div>
+                    </div>
+                </text>);
+
+                tabstrip.Add().Text("Chọn phiếu chuyển kho")
+               .Content(@<text>
+                        <div class="tabstrip-workspace">
+
+
+                            <div class="div-find" style="margin-bottom:8px;">
+                                <input id="stockTransferReferenceSearchBox" class="k-textbox" onkeyup="stockTransferReferenceSearchBox_KeyUp()" />
+                                <input id="stockTransferReferenceSearchButton" type="button" class="k-button" value="Tìm" onclick="stockTransferReferenceSearchButton_Click()" />
+                            </div>
+
+                            <div>
+                                @(Html.Kendo().Grid<GoodsReceiptGetStockTransfer>()
+                                            .Name("getStockTransfersGrid")
+
+                                            .Columns(columns =>
+                                            {
+                                                columns.Bound(c => c.EntryDate).DisplayNameTitle().Width(80).Format("{0:" + SettingsManager.DateFormat + "}");
+                                                columns.Bound(c => c.Reference).DisplayNameTitle().Width(80);
+
+                                                columns.Bound(c => c.LocationName).DisplayNameTitle().Width(160);
+                                                columns.Bound(c => c.Telephone).DisplayNameTitle().Width(120);
+                                                columns.Bound(c => c.Facsimile).DisplayNameTitle().Width(80);
+
+                                                columns.Bound(c => c.Description).DisplayNameTitle().Width(120);
+                                                columns.Bound(c => c.Remarks).DisplayNameTitle().Width(120);
+                                            })
+                                            .Scrollable(s => s.Height(SettingsManager.GridPopupHeight))
+                                            .DataSource(ds => ds.Ajax()
+                                                    .Read(read => read.Action("GetStockTransfers", "GoodsReceiptsApi").Data("onAdditionalGetStockTransfers"))
+                                                    .ServerOperation(true)
+                                            )
+                                            .Selectable()
+                                )
+                            </div>
+
+
+                        </div>
+            </text>);
+            })
+        )
+    </div>
+
+    <div class="div-popup-button">
+        <input id="okButton" type="button" value="Ok" class="k-button" onclick="okButton_Click()" />
+        <input id="cancelButton" type="button" value="Cancel" class="k-button" onclick="cancelButton_Click()" />
+    </div>
+}
+
+
+<link href="@Url.Content("~/Content/CustomCss/GeneralPopup.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/Helpers/StockTasks/goodsReceiptCreateWizard.js")"></script>
+
+
+
+<script type="text/javascript">
+
+    function onAdditionalGetPurchaseInvoices(e) {
+        return {
+            locationID: window.parent.requireConfig.pageOptions.LocationID,
+            goodsReceiptID: window.parent.$("#goodsReceiptID").val(),
+            purchaseInvoiceReference: $("#purchaseInvoiceReferenceSearchBox").val()
+        };
+    }
+
+    function onAdditionalGetStockTransfers(e) {
+        return {
+            locationID: window.parent.requireConfig.pageOptions.LocationID,
+            goodsReceiptID: window.parent.$("#GoodsReceiptID").val(),
+            stockTransferReference: $("#stockTransferReferenceSearchBox").val()
+        };
+    }
+
+
+    function purchaseInvoiceReferenceSearchButton_Click() {
+        $("#getPurchaseInvoicesGrid").data("kendoGrid").dataSource.read();
+    }
+
+    function purchaseInvoiceReferenceSearchBox_KeyUp() {
+        if ($("#purchaseInvoiceReferenceSearchBox").val().length >= "@SettingsManager.AutoCompleteMinLenght") {
+            purchaseInvoiceReferenceSearchButton_Click;
+        }
+    }
+
+    function stockTransferReferenceSearchButton_Click() {
+        $("#getStockTransfersGrid").data("kendoGrid").dataSource.read();
+    }
+
+    function stockTransferReferenceSearchBox_KeyUp() {
+        if ($("#stockTransferReferenceSearchBox").val().length >= "@SettingsManager.AutoCompleteMinLenght") {
+            stockTransferReferenceSearchButton_Click();
+        }
+    }
+
+
+
+    //BEGIN Handle OK/ Cancel action
+    $("#getPurchaseInvoicesGrid").dblclick(function (e) {
+        okButton_Click();
+    })
+
+    $("#getStockTransfersGrid").dblclick(function (e) {
+        okButton_Click();
+    })
+
+
+    
+    function okButton_Click() {
+        handleOKEvent($("#tabStrip").data("kendoTabStrip").select().index());
+    }
+
+    function okWOSelectButton_Click() {
+        handleOKEvent();
+    }
+    //END Handle OK/ Cancel action
+
+
+</script>
+
+

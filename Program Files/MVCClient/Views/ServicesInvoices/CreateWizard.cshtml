@@ -1,0 +1,42 @@
+﻿@using MVCClient.Configuration;
+
+@{Layout = "~/Views/Shared/_LayoutPopupWindow.cshtml";}
+
+@using (Html.BeginForm())
+{
+
+    <div class="div-tabstrip">
+
+        @(Html.Kendo().TabStrip()
+        .Name("tabStrip")
+        .Items(tabStrip =>
+        {
+            tabStrip.Add().Text("Xe đã báo giá")
+                .Selected(true)
+                .Content(@<text>
+                    @Html.Partial("~/Views/Helpers/Commons/_SearchQuotation.cshtml")
+                </text>);
+
+            tabStrip.Add().Text("Xe đã đăng ký hồ sơ")
+                .Content(@<text>
+                    @Html.Partial("~/Views/Helpers/Commons/_SearchServiceContract.cshtml")
+                </text>);
+        })
+        )
+    </div>
+    
+
+    <div class="div-popup-button">
+        <input id="okButton" type="button" value="OK" class="k-button" onclick="okButton_Click()" />
+        <input id="cancelButton" type="button" value="Cancel" class="k-button" onclick="cancelButton_Click()" />
+    </div>
+}
+
+<link href="@Url.Content("~/Content/CustomCss/GeneralPopup.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/Helpers/SalesTasks/salesInvoiceCreateWizard.js")"></script>
+
+<script type="text/javascript">  
+    function okButton_Click() {
+        handleOKEvent($($("#tabStrip").data("kendoTabStrip").select().index() === 0 ? "#gridQuotations" : "#gridServiceContracts").data("kendoGrid"));
+    }
+</script>

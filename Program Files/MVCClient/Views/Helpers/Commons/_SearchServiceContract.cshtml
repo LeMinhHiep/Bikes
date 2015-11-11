@@ -1,0 +1,55 @@
+﻿@using MVCDTO.SalesTasks
+@using MVCClient.Configuration
+
+<div class="tabstrip-workspace">
+
+    <div class="div-find">
+        <label>Nhập biển số/ SK/ SM</label>
+        <input id="serviceContractsSearchBox" class="k-textbox" onkeyup="serviceContractsSearchBox_KeyUp()" />
+        <input id="serviceContractsSearchButton" type="button" class="k-button" value="Tìm" onclick="serviceContractsSearchButton_Click()" />
+    </div>
+
+    <div>
+        @(Html.Kendo().Grid<ContractibleInvoicePrimitiveDTO>()
+                            .Name("gridServiceContracts")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.CustomerName).DisplayNameTitle().Width(141);
+                                columns.Bound(c => c.CustomerTelephone).DisplayNameTitle().Width(80);
+
+                                columns.Bound(c => c.ServiceContractCommodityName).DisplayNameTitle().Width(141);
+                                columns.Bound(c => c.ServiceContractEngineCode).DisplayNameTitle().Width(89);
+                                columns.Bound(c => c.ServiceContractLicensePlate).DisplayNameTitle().Width(70);
+                                
+                                columns.Bound(c => c.ServiceContractPurchaseDate).DisplayNameTitle().Width(65).Format("{0:" + SettingsManager.DateFormat + "}");
+                            })
+                            .Scrollable(s => s.Height(SettingsManager.GridPopupHeight))
+                            .DataSource(ds => ds.Ajax()
+                            .Read(read => read.Action("SearchServiceContracts", "ServiceContractsApi").Data("onAdditionalGetServiceContracts"))
+                            .ServerOperation(true))
+                            .Selectable())
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function onAdditionalGetServiceContracts(e) {
+        return {
+            searchText: $("#serviceContractsSearchBox").val()
+        };
+    }
+
+    function serviceContractsSearchButton_Click() {
+        $("#gridServiceContracts").data("kendoGrid").dataSource.read();
+    }
+
+    function serviceContractsSearchBox_KeyUp() {
+        if ($("#serviceContractsSearchBox").val().length >= "@SettingsManager.AutoCompleteMinLenght") {
+            serviceContractsSearchButton_Click();
+        }
+    }
+
+    $("#gridServiceContracts").dblclick(function (e) {
+        okButton_Click();
+    })
+</script>

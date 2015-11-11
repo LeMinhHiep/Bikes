@@ -1,0 +1,62 @@
+﻿@using MVCClient.Configuration
+
+@model MVCClient.ViewModels.Helpers.IContractibleInvoiceViewModel
+
+@Html.HiddenFor(model => model.ServiceContractID)
+@Html.HiddenFor(model => model.ServiceContractReference)
+@Html.HiddenFor(model => model.ServiceContractColorCode)
+@Html.HiddenFor(model => model.ServiceContractCommodityCode)
+@Html.HiddenFor(model => model.ServiceContractCommodityName)
+@Html.HiddenFor(model => model.ServiceContractLicensePlate)
+@Html.HiddenFor(model => model.ServiceContractPurchaseDate)
+@Html.HiddenFor(model => model.ServiceContractChassisCode)
+@Html.HiddenFor(model => model.ServiceContractEngineCode)
+
+<div id="customer-div" class="customer-background">
+    <div class="div-row2">
+        @Html.Partial("~/Views/Helpers/Commons/_CustomerMaskedTextBox.cshtml")
+    </div>
+    <div class="div-row2 customer-lmargin" style="padding-top: 20px;">
+        @{string serviceContractPurchaseDate = "";}
+        @if (Model.ServiceContractPurchaseDate != null)
+        {
+            if (Model.ServiceContractPurchaseDate.Value.Year > 1900)
+            {
+                serviceContractPurchaseDate = Model.ServiceContractPurchaseDate.Value.ToShortDateString();
+            }
+        }
+        <label id="CommodityDescription" class="label-description" style=" margin-top: 10px;">@Model.ServiceContractCommodityName / @Model.ServiceContractCommodityCode / @Model.ServiceContractLicensePlate / @serviceContractPurchaseDate / @Model.ServiceContractChassisCode / @Model.ServiceContractEngineCode</label>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    function editServiceContract_click() {                             
+        var r = czDLG(" ", "Are you sure?", "czStop", ["Yes", "No", "Cancel"], dialogResult);
+    }
+
+    function dialogResult(dlgResult) {
+        switch(dlgResult) {
+            case "Yes":
+                $("#submitEditServiceContract").trigger("click");
+                break;
+            case "No":
+                $("#submitEditServiceContract").trigger("click");
+                break;
+            default:
+                break;
+        } 
+    }
+
+    function changeServiceContract_click() {
+        var popupWindow = $("#popupWindow");
+        var mywindow = CreatePopUp("Change Service Contract", "900px", "480px", popupWindow);
+
+        if (mywindow != null) {
+            var url = "@Url.Action("CreateWizard", "ServicesInvoices")";
+
+            mywindow.center().open();
+            mywindow.refresh(url);
+        }
+    }
+</script>

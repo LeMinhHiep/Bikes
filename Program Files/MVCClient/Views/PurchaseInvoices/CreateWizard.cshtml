@@ -1,0 +1,168 @@
+﻿@using MVCClient.Configuration
+@using MVCModel.Models;
+
+
+@{
+    Layout = "~/Views/Shared/_LayoutPopupWindow.cshtml";
+}
+
+
+@using (Html.BeginForm())
+{
+
+    <div class="div-tabstrip">
+
+        @(Html.Kendo().TabStrip()
+        .Name("tabStrip")
+        .Items(tabstrip =>
+        {
+            tabstrip.Add().Text("Chọn phiếu đặt hàng")
+                .Selected(true)
+                .Content(@<text>
+                    <div class="tabstrip-workspace">
+
+                        <div class="div-find" style="margin-bottom:8px;">
+                            <input id="purchaseOrderReferenceSearchBox" class="k-textbox" onkeyup="purchaseOrderReferenceSearchBox_KeyUp()" />
+                            <input id="purchaseOrderReferenceSearchButton" type="button" class="k-button" value="Tìm" onclick="purchaseOrderReferenceSearchButton_Click()" />
+                        </div>
+
+                        <div>
+                            @(Html.Kendo().Grid<PurchaseInvoiceGetPurchaseOrder>()
+                                        .Name("getPurchaseOrdersGrid")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(c => c.PurchaseOrderReference).Title("Số phiếu mua").Width(100);
+                                            columns.Bound(c => c.PurchaseOrderEntryDate).Title("Ngày mua").Width(80).Format("{0:" + SettingsManager.DateFormat + "}");
+                                            columns.Bound(c => c.CustomerName).Title("Nhà cung cấp").Width(160);
+                                            columns.Bound(c => c.PurchaseOrderConfirmReference).Title("Số xác nhận").Width(100);
+                                            columns.Bound(c => c.PurchaseOrderConfirmDate).Title("Ngày xác nhận").Width(80).Format("{0:" + SettingsManager.DateFormat + "}");                                            
+                                            columns.Bound(c => c.Description).Title("Diễn giải").Width(120);
+                                        })
+                                        .Scrollable(s => s.Height(SettingsManager.GridPopupHeight))
+                                        .DataSource(ds => ds.Ajax()
+                                                .Read(read => read.Action("GetPurchaseOrders", "PurchaseInvoicesApi").Data("onAdditionalGetPurchaseOrders"))
+                                                .ServerOperation(true)
+                                        )
+                                        .Selectable()
+                            )
+                        </div>
+
+                    </div>
+                </text>);
+
+
+
+
+            tabstrip.Add().Text("Chọn nhà cung cấp")
+                .Content(@<text>
+                    <div class="tabstrip-workspace">
+
+
+                        <div class="div-find" style="margin-bottom:8px;">
+                            <input id="supplierNameSearchBox" class="k-textbox" onkeyup="supplierNameSearchBox_KeyUp()" />
+                            <input id="supplierNameSearchButton" type="button" class="k-button" value="Tìm" onclick="supplierNameSearchButton_Click()" />
+                        </div>
+
+                        <div>
+                            @(Html.Kendo().Grid<PurchaseInvoiceGetSupplier>()
+                                        .Name("getSuppliersGrid")
+
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(c => c.CustomerName).Title("Nhà cung cấp").Width(160);
+                                            columns.Bound(c => c.CustomerAttentionName).Title("Người liên hệ").Width(120);
+                                            columns.Bound(c => c.CustomerTelephone).Title("Điện thoại").Width(80);
+                                            columns.Bound(c => c.CustomerAddressNo).Title("Địa chỉ").Width(160);
+                                            columns.Bound(c => c.CustomerEntireTerritoryEntireName).Title("Khu vực").Width(100);
+                                        })
+                                        .Scrollable(s => s.Height(SettingsManager.GridPopupHeight))
+                                        .DataSource(ds => ds.Ajax()
+                                                .Read(read => read.Action("GetSuppliers", "PurchaseInvoicesApi").Data("onAdditionalGetSuppliers"))
+                                                .ServerOperation(true)
+                                        )
+                                        .Selectable()
+                            )
+                        </div>
+
+
+                    </div>
+                </text>);
+        })
+        )
+    </div>
+
+    <div class="div-popup-button">
+        <input id="cancelButton" type="button" value="Cancel" class="k-button" onclick="cancelButton_Click()" />
+        <input id="okButton" type="button" value="Ok" class="k-button" onclick="okButton_Click()" />
+    </div>
+}
+
+
+<link href="@Url.Content("~/Content/CustomCss/GeneralPopup.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/Helpers/PurchaseTasks/purchasesCreateWizard.js")"></script>
+
+
+<script type="text/javascript">
+
+    //BEGIN Handle GetPurchaseOrders/ GetSuppliers and load to grid
+    function onAdditionalGetPurchaseOrders(e) {
+        return {//Send parameter to controller search action
+            locationID: window.parent.requireConfig.pageOptions.LocationID,
+            purchaseInvoiceID: window.parent.$("#PurchaseInvoiceID").val(),
+            purchaseOrderReference: $("#purchaseOrderReferenceSearchBox").val()
+        };
+    }
+
+    function onAdditionalGetSuppliers(e) {
+        return {//Send parameter to controller search action
+            locationID: window.parent.requireConfig.pageOptions.LocationID,
+            purchaseInvoiceID: window.parent.$("#PurchaseInvoiceID").val(),
+            supplierName: $("#supplierNameSearchBox").val()
+        };
+    }
+
+
+    function supplierNameSearchButton_Click() {
+        $("#getSuppliersGrid").data("kendoGrid").dataSource.read();
+    }
+
+    function supplierNameSearchBox_KeyUp() {
+        if ($("#supplierNameSearchBox").val().length >= "@SettingsManager.AutoCompleteMinLenght") {
+            $("#getSuppliersGrid").data("kendoGrid").dataSource.read();
+        }
+    }
+
+
+    function serviceContractsSearchButton_Click() {
+        $("#gridServiceContracts").data("kendoGrid").dataSource.read();
+    }
+
+    function serviceContractsSearchBox_KeyUp() {
+        if ($("#serviceContractsSearchBox").val().length >= "@SettingsManager.AutoCompleteMinLenght") {
+            serviceContractsSearchButton_Click();
+        }
+    }
+
+    $("#getPurchaseOrdersGrid").dblclick(function (e) {
+        okButton_Click();
+    })
+
+    $("#getSuppliersGrid").dblclick(function (e) {
+        okButton_Click();
+    })
+ 
+    //END Handle GetPurchaseOrders/ GetSuppliers and load to grid
+       
+    //BEGIN Handle OK/ Cancel action
+    function okButton_Click() {
+        handleOKEvent($("#tabStrip").data("kendoTabStrip").select().index());
+    }
+
+    function okWOSelectButton_Click() {
+        handleOKEvent();
+    }   
+    //END Handle OK/ Cancel action
+
+</script>
+
+

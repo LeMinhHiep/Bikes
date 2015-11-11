@@ -1,0 +1,46 @@
+﻿@model IEnumerable<MVCModel.Helpers.ModuleDetail>
+
+<ul id="categories1">
+  
+    @(Html.Kendo().Menu()
+    .Name("grouplist")
+    .HtmlAttributes(new { style = "width: 70px;" })
+      .Items(items =>
+      {
+          foreach (var item in Model)
+          {
+              if(item.SoftDescription.Substring(0,3) == "___")
+              {
+                  items.Add()
+                    .Text(item.SoftDescription)                    
+                    .HtmlAttributes(new { @class = "separation", @itemmenu = "item" });                    
+              }
+              else
+              if (item.TaskID == ViewBag.TaskID)
+              {
+                  items.Add()
+                      .Text(item.SoftDescription)
+                      .Content(item.Description)                      
+                      //.Action(item.Actions, item.Controller)
+                      .ImageUrl(item.ImageIndex)
+                      .HtmlAttributes(new { @class = "menuitem1", @taskID = item.TaskID, @taskName = item.Description, @itemmenu = "item", @taskActions = item.Actions, @taskController = item.Controller, @highlight = "highlight" });
+                      
+              }
+              else
+              {
+                  items.Add()
+                      .Text(item.SoftDescription)
+                      .Content(item.Description)                      
+                      //.Action(item.Actions, item.Controller)
+                      .ImageUrl(item.ImageIndex)
+                      .HtmlAttributes(new { @class = "menuitem1" })
+                      .HtmlAttributes(new { @taskID = item.TaskID, @taskName = item.Description, @taskActions = item.Actions, @taskController = item.Controller, @itemmenu = "item" });                      
+              }
+          }
+      })
+        .Events(e => e.Select("selectTask"))
+        .Orientation(MenuOrientation.Vertical)
+    )
+ 
+</ul>
+

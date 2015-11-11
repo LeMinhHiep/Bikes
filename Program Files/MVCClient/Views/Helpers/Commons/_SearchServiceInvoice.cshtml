@@ -1,0 +1,60 @@
+﻿@using MVCDTO.SalesTasks
+@using MVCClient.Configuration
+
+<div class="tabstrip-workspace">
+
+    <div class="div-find">
+        <input id="serviceInvoicesSearchBox" class="k-textbox" onkeyup="serviceInvoicesSearchBox_KeyUp()" />
+        <input id="serviceInvoicesSearchButton" type="button" class="k-button" value="Tìm" onclick="serviceInvoicesSearchButton_Click()" />
+    </div>
+
+    <div>
+        @(Html.Kendo().Grid<ServicesInvoicePrimitiveDTO>()
+                            .Name("gridServiceInvoices")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.Reference).DisplayNameTitle().Width(80);
+                                columns.Bound(c => c.EntryDate).DisplayNameTitle().Format("{0:" + SettingsManager.DateFormat + "}").Width(80);
+
+                                columns.Bound(c => c.CustomerName).DisplayNameTitle().Width(160);
+                                columns.Bound(c => c.CustomerTelephone).DisplayNameTitle().Width(100);
+                                columns.Bound(c => c.CustomerAddressNo).DisplayNameTitle().Hidden();
+                                columns.Bound(c => c.CustomerEntireTerritoryEntireName).DisplayNameTitle().Hidden();
+
+                                columns.Bound(c => c.ServiceContractCommodityName).DisplayNameTitle().Width(160);
+                                columns.Bound(c => c.ServiceContractLicensePlate).DisplayNameTitle().Width(80);
+                                columns.Bound(c => c.ServiceLineID).DisplayNameTitle().Width(80);
+                            })
+                            .Scrollable(s => s.Height(SettingsManager.GridPopupHeight))
+                            .DataSource(ds => ds.Ajax()
+                            .Read(read => read.Action("GetActiveServiceInvoices", "ServicesInvoiceApi").Data("onAdditionalGetActiveServiceInvoices"))
+                            .ServerOperation(true))
+                            .Selectable())
+    </div>
+</div>
+
+<script type="text/javascript">
+    function onAdditionalGetActiveServiceInvoices(e) {
+        return {
+            locationID: window.parent.requireConfig.pageOptions.LocationID,
+            serviceInvoiceID: window.parent.$("#ServiceInvoiceID").val(),
+            licensePlate: $("#serviceInvoicesSearchBox").val(),
+            isFinished: 0
+        };
+    }
+
+    function serviceInvoicesSearchButton_Click() {
+        $("#gridServiceInvoices").data("kendoGrid").dataSource.read();
+    }
+
+    function serviceInvoicesSearchBox_KeyUp() {
+        if ($("#serviceInvoicesSearchBox").val().length >= "@SettingsManager.AutoCompleteMinLenght") {
+            serviceInvoicesSearchButton_Click();
+        }
+    }
+
+    $("#gridServiceInvoices").dblclick(function (e) {
+        okButton_Click();
+    })
+
+</script>

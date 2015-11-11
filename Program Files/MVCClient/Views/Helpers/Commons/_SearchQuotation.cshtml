@@ -1,0 +1,58 @@
+﻿@using MVCDTO.SalesTasks
+@using MVCClient.Configuration
+
+<div class="tabstrip-workspace">
+
+    <div class="div-find">
+        <input id="quotationSearchBox" class="k-textbox" onkeyup="quotationSearchBox_KeyUp()" />
+        <input id="quotationSearchButton" type="button" class="k-button" value="Tìm" onclick="quotationSearchButton_Click()" />
+    </div>
+
+    <div>
+        @(Html.Kendo().Grid<QuotationalInvoicePrimitiveDTO>()
+                            .Name("gridQuotations")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(c => c.QuotationReference).DisplayNameTitle().Width(80);
+                                columns.Bound(c => c.QuotationEntryDate).DisplayNameTitle().Format("{0:" + SettingsManager.DateFormat + "}").Width(80);
+
+                                columns.Bound(c => c.CustomerName).DisplayNameTitle().Width(160);
+                                columns.Bound(c => c.CustomerTelephone).DisplayNameTitle().Width(100);
+                                columns.Bound(c => c.CustomerAddressNo).DisplayNameTitle().Hidden();
+                                columns.Bound(c => c.CustomerEntireTerritoryEntireName).DisplayNameTitle().Hidden();
+
+                                columns.Bound(c => c.ServiceContractCommodityName).DisplayNameTitle().Width(160);
+                                columns.Bound(c => c.ServiceContractLicensePlate).DisplayNameTitle().Width(80);
+                            })
+                            .Scrollable(s => s.Height(SettingsManager.GridPopupHeight))
+                            .DataSource(ds => ds.Ajax()
+                            .Read(read => read.Action("GetActiveQuotations", "QuotationsApi").Data("onAdditionalGetActiveQuotations"))
+                            .ServerOperation(true))
+                            .Selectable())
+    </div>
+</div>
+
+<script type="text/javascript">
+    function onAdditionalGetActiveQuotations(e) {
+        return {
+            quotationID: window.parent.$("#QuotationID").val(),
+            searchQuotation: $("#quotationSearchBox").val(),
+            isFinished: 0
+        };
+    }
+
+    function quotationSearchButton_Click() {
+        $("#gridQuotations").data("kendoGrid").dataSource.read();
+    }
+
+    function quotationSearchBox_KeyUp() {
+        if ($("#quotationSearchBox").val().length >= "@SettingsManager.AutoCompleteMinLenght") {
+            quotationSearchButton_Click();
+        }
+    }
+
+    $("#gridQuotations").dblclick(function (e) {
+        okButton_Click();
+    })
+
+</script>

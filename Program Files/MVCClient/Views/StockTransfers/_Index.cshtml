@@ -1,0 +1,160 @@
+﻿@using MVCClient.Configuration
+@model MVCClient.ViewModels.StockTasks.PartTransferViewModel
+
+<div id="popupWindow" style="position: absolute"></div>
+
+
+@Html.HiddenFor(model => model.TransferOrderID)
+@Html.HiddenFor(model => model.TransferOrderReference)
+@Html.HiddenFor(model => model.TransferOrderEntryDate)
+@Html.HiddenFor(model => model.TransferOrderRequestedDate)
+
+@Html.HiddenFor(model => model.WarehouseID)
+@Html.HiddenFor(model => model.WarehouseName)
+@Html.HiddenFor(model => model.WarehouseLocationName)
+@Html.HiddenFor(model => model.WarehouseLocationTelephone)
+@Html.HiddenFor(model => model.WarehouseLocationFacsimile)
+@Html.HiddenFor(model => model.WarehouseLocationAddress)
+
+
+<div class="div-button">
+    <input id="submitCreateWizard" type="submit" formaction="@ViewBag.urlAction" style="display:none" class="k-button" />
+</div>
+
+
+<script type="text/javascript">
+    function hightLightSelectedRow(e) {
+        require(["kindexGrid"], function (kindexGrid) {
+            var kindexGridInstance = new kindexGrid("kendoGridIndex");
+            kindexGridInstance.setSelectedRow("StockTransferID", @ViewBag.SelectedEntityID);
+        });
+    }
+
+    function createWizard() {
+        require(["kpopupWindow"], function (kpopupWindow) {
+            var createWizardWindow = new kpopupWindow();
+            createWizardWindow.openWindow($("#popupWindow"), "@ViewBag.urlAction", "Chọn ", "900px", "480px");
+        });
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*@using MVCClient.Configuration
+@model MVCClient.ViewModels.StockTasks.PartTransferViewModel
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div id="popupWindow" style="position: absolute"></div>
+
+
+    @Html.HiddenFor(model => model.TransferOrderID);
+    @Html.HiddenFor(model => model.TransferOrderReference);
+    @Html.HiddenFor(model => model.TransferOrderEntryDate);
+    @Html.HiddenFor(model => model.TransferOrderRequestedDate);
+
+    @Html.HiddenFor(model => model.WarehouseID);
+    @Html.HiddenFor(model => model.WarehouseCode);
+    @Html.HiddenFor(model => model.WarehouseName);
+    @Html.HiddenFor(model => model.WarehouseLocationName);
+    @Html.HiddenFor(model => model.WarehouseLocationTelephone);
+    @Html.HiddenFor(model => model.WarehouseLocationFacsimile);
+    @Html.HiddenFor(model => model.WarehouseLocationAddress);
+
+
+    <div>
+        @(Html.Kendo().Grid<MVCDTO.StockTasks.PartTransferPrimitiveDTO>()
+            .Name("kendoGridIndex")
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.StockTransferID).DisplayNameTitle().Hidden();
+                columns.Bound(p => p.Reference).DisplayNameTitle().Width(100);
+                columns.Bound(p => p.EntryDate).DisplayNameTitle().Format("{0:d}").Width(80);
+                columns.Bound(p => p.TransferOrderReference).DisplayNameTitle().Width(120);
+                columns.Bound(p => p.TransferOrderEntryDate).DisplayNameTitle().Format("{0:d}").Width(80);
+                columns.Bound(p => p.TransferOrderRequestedDate).DisplayNameTitle().Format("{0:d}").Width(80);
+                columns.Bound(p => p.WarehouseID).DisplayNameTitle().Hidden();
+                columns.Bound(p => p.WarehouseName).DisplayNameTitle().Width(120);
+                columns.Bound(p => p.Description).DisplayNameTitle().Width(120);
+                columns.Bound(p => p.TotalQuantity).DisplayNameTitle().Format("{0:n0}").Filterable(false).Width(80).ClientFooterTemplate("Total Quantity: #= sum #");
+                columns.Bound(p => p.Remarks).Title("Ghi chú").Filterable(false).Width(100);
+                columns.Template(model => null).Width(100)
+               .ClientTemplate("<a href='" + Url.RouteUrl("Default", new { controller = "PartTransfers", action = "Edit" }) + "/#= StockTransferID #'>Edit</a>");
+            })
+            .ToolBar(toolbar => toolbar.Template("<a class='k-button k-button-icontext k-grid-add' href='javascript:void(0)' onClick='createWizard()'>Create</a>"))
+            .Pageable()
+            .Groupable()
+            .Filterable()
+            .Selectable()
+            .Sortable()
+            .Events(e =>
+            {
+                e.DataBound("hightLightSelectedRow");
+            })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Read(read => read.Action("GetPartTransfers", "PartTransferApi"))
+                //.Events(events => events.Error("onError"))
+                .PageSize(20)
+                .Model(model =>
+                {
+                    model.Id(x => x.StockTransferID);
+                    model.Field(m => m.StockTransferID).DefaultValue(0);
+                })
+            .ServerOperation(false)
+            .Aggregates(a => a.Add(x => x.TotalQuantity).Sum())
+                ).HtmlAttributes(new { @class = "grid-class" }))
+    </div>
+
+    <div class="div-button">
+        <input id="submitCreateWizard" type="submit" formaction="@Url.Action("CreateWizard", "PartTransfers")" style="display:none" class="k-button" />
+    </div>
+
+}
+
+
+<script type="text/javascript">
+    function hightLightSelectedRow(e) {
+        require(["kindexGrid"], function (kindexGrid) {
+            var kindexGridInstance = new kindexGrid("kendoGridIndex");
+            kindexGridInstance.setSelectedRow("StockTransferID", @ViewBag.SelectedEntityID);
+        });
+    }
+
+    function createWizard() {
+        require(["kpopupWindow"], function (kpopupWindow) {
+            var createWizardWindow = new kpopupWindow();
+            createWizardWindow.openWindow($("#popupWindow"), "@Url.Action("CreateWizard", "PartTransfers")", "Chọn ", "900px", "480px");
+        });
+    }
+</script>*@
+
+
+
